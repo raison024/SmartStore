@@ -1,0 +1,146 @@
+.Admin{
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.AdminStores-container {  
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #fafafa;
+  }
+
+.Admin-column{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.table{
+  padding: 10px;
+  max-height: 50px;
+  overflow-y: scroll;
+  min-width: 100vh;
+}
+
+
+th,td{
+  font-size: 12px;
+}
+
+.prodForm{
+  margin-left: 10%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedback-container{
+  padding: 10vh;
+}
+
+.AdminCardContainer{
+  min-width: fit-content;
+  min-height: 30vh;
+  max-width: fit-content;
+}
+
+@media (max-height: 760px) {
+
+  /* .p-3  {
+    margin-left: 50%;
+  } */
+}
+
+.AdminDashMain {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.AdminDash1 {
+  display: flex;
+  width: 70%;
+  background-color: black;
+  color: white;
+}
+
+.AdminDash2 {
+  width: 30%;
+  background-color: black;
+  color: white;
+}
+
+.AdminDash1-1,
+.AdminDash1-2,
+.AdminDash2-1,
+.AdminDash2-2 {
+  margin: 2px;
+}
+
+.AdminDash1-1,
+.AdminDash1-2 {
+  height: 50%;
+}
+
+.AdminDash2-1,
+.AdminDash2-2 {
+  height: 50%;
+}
+
+@media screen and (max-width: 768px) {
+  .AdminDashMain {
+    flex-direction: column;
+  }
+  
+  .AdminDash1,
+  .AdminDash2 {
+    width: 100%;
+  }
+}
+
+.CustomerIncome{
+  background-color: aqua;
+  width: 10vh;
+  justify-content: space-between;
+}
+
+.selectAdmin{
+  display: flex;
+  flex-direction: row;
+}
+
+.AdminCards{
+  margin: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.AdminCardsRight{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  margin-left:20px ;
+  /* margin-top: 10px; */
+}
+.RightCardsHead{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.PopProducts{
+  display: flex;
+  flex-direction: column;
+}
+.PopProd{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

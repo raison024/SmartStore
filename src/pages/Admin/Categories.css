@@ -1,0 +1,16 @@
+.Categories-main{
+    margin-top: 10vh;
+    margin-left: 10vh;
+    margin-right: 40vh;
+}
+
+.Category-add-sub-btn{
+    margin-top: 2vh;
+    margin-left: 10vh;
+    margin-bottom: 2vh;
+}
+
+.Category-add-submit{
+    background-color: black;
+    margin-left: 10vh;
+}

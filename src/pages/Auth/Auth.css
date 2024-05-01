@@ -1,0 +1,55 @@
+.Auth-header{
+    min-height: 100vh;
+    width: 100%;
+    background-image: linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.7)) ,url('../../assets/Signin.jpg');
+    background-size: cover;
+}
+
+.Auth-goback{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 17px;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+}
+
+.Auth-header h2{
+    font-size: 35px;
+}
+
+.Auth-header p{
+    font-weight: 200;
+}
+
+.Auth-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.Auth-row{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.Auth-container{
+    width: 400px;
+    padding-inline: 30px;
+    padding-block: 40px;
+    background-color: white;
+    border-radius: 30px;
+    animation: Auth-anim 0.5s linear;
+    position: relative;
+}
+
+@keyframes Auth-anim {
+    from { top: 40px; }
+    to { top: 0px; }
+}
+
+

@@ -1,0 +1,277 @@
+.User-header{
+    min-height: 100vh;
+    width: 100%;
+    background-color: white;
+}
+
+.User-goback{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.User-header h2{
+    font-size: 35px;
+}
+
+.User-header p{
+    font-weight: 200;
+}
+
+.User-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.User-row{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.User-poster{
+    margin-top: 1vh;
+}
+
+.User-paddingcontainer{
+    width: 90%;
+}
+
+.User-grid{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.Card{
+    height: 200px;
+    width: 160px;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    justify-content: flex-start;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    border-radius: 10px;
+}
+.Card img {
+    width: 100%;
+    height: 100%;
+}
+.Card:hover{
+    transform: scale(1.01);
+}
+.Card h4{
+    font-size: 14px;
+}
+.Card-column{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-self: center;
+}
+
+.CartScan-container{
+    height: 100%;
+    width: 100%;
+}   
+
+.Cart-itemscroll{
+    width: 100%;
+    height: 60vh;
+    background-color: #1565C0;
+    overflow-y: scroll;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.Cart-itemscroll::-webkit-scrollbar {
+    display: none;
+  }
+
+.Cart-itemsContainer{
+    height: 80px;
+    width: 100%;
+    margin-block: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0;
+}
+.Cart-itemsContainer p{
+    margin: 0;
+}
+
+.Cart-bottomsheet{
+    border-radius: 30px 30px 0 0;
+    width: 100%;
+    box-shadow: 0px -10px 3px rgba(0, 0, 0, 0.1);
+    padding-block: 10px;
+}
+
+.Cart-bottomsheet p{
+    font-size: 14px;
+    font-weight: normal;
+}
+
+.Cart-bottomsheet .Cart-spacerow{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: 10px;
+    gap: 5px;
+}
+
+.Cart-fab{
+    margin: 0px;
+}
+
+.User-paylist{
+    background-color: white;
+    width: 100%;
+    text-decoration: none;
+    color: black;
+    padding-block: 10px;
+    margin-block: 10px;
+    border-radius: 10px;
+}
+.User-paylist p{
+    margin: 0;
+    margin-left: 20px;
+}
+
+
+html,
+.feed-body {
+    min-height: 100%;
+    background-image: url('../../assets/bgnew.jpg');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+body,
+div,
+form,
+input,
+
+h1 {
+    font-weight: 400;
+}
+
+h4 {
+    margin: 15px 0 4px;
+}
+
+.testbox {
+    width: 60vw;
+    margin: 10vh auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: inherit;
+    
+}
+
+form {
+    width: 100%;
+    padding: 40px;
+    padding-top: 5px;
+    background: #fff;
+    box-shadow: 0;
+    border: 0;
+    border-radius: 5px;
+}
+
+input {
+    width: calc(100% - 10px);
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
+.email {
+    display: block;
+    width: 45%;
+}
+
+input:hover,
+textarea:hover {
+    outline: none;
+    border: 1px solid #095484;
+}
+
+th,
+td {
+    width: 15%;
+    padding: 15px 0;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+    vertical-align: unset;
+    line-height: 18px;
+    font-weight: 400;
+    word-break: break-all;
+    font-family: inherit;
+}
+
+.first-col {
+    width: 16%;
+    text-align: left;
+}
+
+table {
+    width: 100%;
+}
+
+textarea {
+    width: calc(100% - 6px);
+}
+
+.btn-block {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.feedbackbtn {
+    width: 150px;
+    padding: 10px;
+    border: none;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    background-color: #095484;
+    font-size: 16px;
+    color: #fff;
+    cursor: pointer;
+}
+
+.feedbackbtn:hover {
+    background-color: #1565C0;
+}
+
+
+textarea {
+    border-radius: 5px;
+    padding: 20px;
+}
+
+@media (min-width: 568px) {
+
+    th,
+    td {
+        word-break: keep-all;
+    }
+}
