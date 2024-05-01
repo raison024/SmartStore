@@ -64,8 +64,8 @@ function UserNavbar() {
         </div>
         <div className='Navbar-linkscontainer'>
           {/* <a style={{ color: 'black' }} onClick={accountclick}>Account</a> */}
-          {/* <a style={{ color: 'black' }} onClick={histclick}>History</a>
-          <a style={{ color: 'black' }} onClick={feedclick}>Feedback</a> */}
+          <a style={{ color: 'black' }} onClick={histclick}>History</a>
+          {/* <a style={{ color: 'black' }} onClick={feedclick}>Feedback</a> */}
         </div>
       </div>
 

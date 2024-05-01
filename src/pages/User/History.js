@@ -4,7 +4,7 @@ import Avatar from '../../assets/avatar.png'
 import { Button, Fab, IconButton, Box, Typography, Modal, Snackbar, TextField } from '@mui/material'
 import '../Auth/Auth.css'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import Axios from 'axios'
+import { supabase } from '../../supabase'; // Import your Supabase client
 
 const style = {
     position: 'absolute',
@@ -18,20 +18,19 @@ const style = {
 };
 
 function History() {
-    // const [totalAmount,setTotalAmount]=useState(0);
     const navigate = useNavigate();
     let { state } = useLocation();
 
     //Modal Open/Close
     const [open, setOpen] = React.useState(false);
 
-    function handleOpen(pay_id) {
-        setSelectedPayId(pay_id);
+    function handleOpen(cartId) {
+        setSelectedCartId(cartId);
         setOpen(true);
     }
 
     const handleClose = () => setOpen(false);
-    const [selectedPayId, setSelectedPayId] = useState(null);
+    const [selectedCartId, setSelectedCartId] = useState(null);
 
     function goback() {
         navigate("/home", { state: { userEmail: (state.userEmail) } });
@@ -41,54 +40,48 @@ function History() {
     const [prodList, setProdList] = useState([]);
     const [totalprice, setTotalPrice] = useState("Hey");
 
-    function handlebill() {
-        Axios.post("http://localhost:3002/api/getcartitems", { vid: 300, cid: state.userId }).then((data) => {
-            setProdList(data.data)
-        });
-
-
-        Axios.post("http://localhost:3002/api/gettotalcartprice", { vid: 300, cid: state.userId }).then((data, vid) => {
-            setTotalPrice(parseInt(data))
-            console.log("Virtual Cart id:" + vid)
-            console.log("Test value:" + (data.data))
-            console.log("this is the total:" + totalprice)
-            setTotalPrice(data.data[0]["SUM(price)"]);
-        });
-    }
-    const [payProd, setPayProd] = useState([])
     useEffect(() => {
-        if (selectedPayId) {
-            Axios.get(`http://localhost:3002/api/get_pay_products/${selectedPayId}`)
-                .then((res) => {
-                    console.log(res);
-                    setPayProd(res.data);
-                })
-                .catch((err) => console.log(err));
-        }
-    }, [selectedPayId]);
+        // Fetch user history and payment products when the component mounts
+        const fetchData = async () => {
+            try {
+                // Fetch user payment history
+                const payListData = await supabase
+                    .from('payments')
+                    .select('*')
+                    .eq('user_email', state.userEmail);
 
-    useEffect(() => {
-        Axios.post("http://localhost:3002/api/getuserhistory", { cid: state.userId }).then((data) => {
-            setPayList(data.data)
-        });
-    }, []);
+                setPayList(payListData.data);
+
+                // Fetch payment products if a payment ID is selected
+                if (selectedCartId) {
+                    const payProdData = await supabase
+                        .from('cart')
+                        .select('*')
+                        .eq('cart_id', selectedCartId);
+
+                    setPayProd(payProdData.data);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error.message);
+            }
+        };
+
+        fetchData();
+    }, [selectedCartId, state.userId]);
+
+    const [payProd, setPayProd] = useState([]);
 
     return (
         <div className='Auth-header User-column'>
             <a className='Auth-goback' onClick={goback}>&larr; &nbsp;Go back</a>
             <div style={{ width: '30%', padding: '20px', background: '#d0d0d0' }}>
                 <h4>Payment History</h4>
-                {/* <p>{state.userId}</p> */}
 
                 {payList.map(payment => (
-                //                       const dob = new Date(payment.pay_time);
-                // const formattedDate = dob.toLocaleDateString();
-                // const time = new Date(payment.pay_time)
-                // const formattedTime = time.toLocaleTimeString();
-                <a key={payment.pay_id} className='User-paylist' onClick={() => handleOpen(payment.pay_id)}>
-                    <p>{payment.pay_time}</p>
-                    <p>Rs. {payment.total_pay}</p>
-                </a>
+                    <a key={payment.pay_id} className='User-paylist' onClick={() => handleOpen(payment.cart_id)}>
+                        <p>{payment.payment_date}</p>
+                        <p>Rs. {payment.payment_amount}</p>
+                    </a>
                 ))}
 
                 <Modal
@@ -104,11 +97,8 @@ function History() {
 
                             {payProd.map((prod) => {
                                 return (
-                                    <li key={prod.pid}> {prod.pname}
-                                        {/* <p>{prod.pid}</p> */}
-                                        {/* <p>{prod.quantity}</p> */}
-                                        <p>Rs. {prod.price}</p>
-
+                                    <li key={prod.pid}> {prod.prod_id}
+                                        <p>Rs. {prod.prod_price}</p>
                                     </li>
                                 )
                             })}
@@ -117,11 +107,9 @@ function History() {
                         </div>
                     </Box>
                 </Modal>
-
-
             </div>
         </div>
     )
 }
 
-export default History
+export default History;
