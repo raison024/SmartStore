@@ -47,7 +47,7 @@ function Cart() {
   const [name, setName] = useState("");
   const [scanStatus, setscanStatus] = useState("Scan a product");
   const [wrong, setwrong] = useState("");
-  const [prodname, setprodname] = useState("");
+  const [prodname, setprodname] = useState("Product not found");
 
   const check = async () => {
     try {
@@ -60,8 +60,6 @@ function Cart() {
         console.error('Error fetching products:', error.message);
         return;
       }
-
-      alert("Supabase found the product with id " + name);
       setprodname(data.prod_name);
     } catch (error) {
       console.error('Error:', error.message);
@@ -217,9 +215,7 @@ function Cart() {
                         setName(result?.text);
                         setscanStatus('The product you have scanned is');
                         setwrong('Wrong Product? Please scan again ;)');
-                        <p>{prodname} is this the product?</p>
-
-                        // check();
+                        check();
                       }
 
                       if (!!error) {
