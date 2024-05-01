@@ -207,7 +207,7 @@ function Cart() {
             >
               <Box sx={style}>
                 <div style={{ width: '100%', background: 'orange' }}>
-                  {/* <QrReader
+                  <QrReader
                   constraints = {{
                     facingMode: { exact: "environment" },
                   }}
@@ -226,13 +226,13 @@ function Cart() {
                       }
                     }}
                     style={{ width: '100%' }}
-                  /> */}
+                  />
                   {/* <Scanner
                     onResult={(text, result) => console.log(text, result)}
                     onError={(error) => console.log(error?.message)}
                   /> */}
-                  <QrReader2
-                  />
+                  {/* <QrReader2
+                  /> */}
                 </div>
                 <div className='User-column'>
                   <p>{scanStatus}<br />{name}</p>
