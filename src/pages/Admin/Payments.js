@@ -1,42 +1,15 @@
-
-import React, { useState, useEffect } from 'react'
-import SideBar from '../../components/Admin SideBar/SideBar'
-import '../../../node_modules/bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap/dist/js/bootstrap.bundle.min'
-import './Stores.css'
-import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';
+import React, { useState, useEffect } from 'react';
+import SideBar from '../../components/Admin SideBar/SideBar';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
-// import DeleteIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import Axios from 'axios'
+import PageviewOutlinedIcon from '@mui/icons-material/PageviewOutlined';
+import { supabase } from '../../supabase'; // Import your Supabase client
 
-
-function Customers() {
-
-  const [payments, setPayments] = useState([])
-  const [open, setOpen] = React.useState(false);
-
-  function handleOpen(pay_id) {
-    setSelectedPayId(pay_id);
-    setOpen(true);
-  }
-
-  const handleClose = () => setOpen(false);
+function Payments() {
+  const [payments, setPayments] = useState([]);
+  const [open, setOpen] = useState(false);
   const [selectedPayId, setSelectedPayId] = useState(null);
-  // const style = {
-  //   position: 'absolute',
-  //   top: '50%',
-  //   left: '50%',
-  //   transform: 'translate(-50%, -50%)',
-  //   bgcolor: 'background.paper',
-  //   border: '2px solid #000',
-  //   boxShadow: 24,
-  //   p: 4,
-  //   width: 400,
-  //   height: 400,
-  //   justifyContent: 'center',
-  //   alignItems: 'center'
-  // };
+  const [payProd, setPayProd] = useState([]);
 
   const tableModalStyle = {
     position: 'absolute',
@@ -54,142 +27,143 @@ function Customers() {
   };
 
   useEffect(() => {
-    Axios.get('http://localhost:3003/api/read_payments')
-      .then(res => {
-        console.log(res)
-        setPayments(res.data)
-      })
-      .catch(err => console.log(err))
-    console.log("Testing: " + payments)
+    const fetchPayments = async () => {
+      try {
+        const { data, error } = await supabase.from('payments').select('*');
+        if (error) {
+          throw error;
+        }
+        setPayments(data);
+      } catch (error) {
+        console.error('Error fetching payments:', error.message);
+      }
+    };
+    fetchPayments();
   }, []);
 
-  useEffect(() => {
-    if (selectedPayId) {
-      Axios.get(`http://localhost:3003/api/get_pay_products/${selectedPayId}`)
-        .then((res) => {
-          console.log(res);
-          setPayProd(res.data);
-        })
-        .catch((err) => console.log(err));
+  async function fetchPaymentProducts(cartId) {
+    try {
+      const { data: cartData, error: cartError } = await supabase
+        .from('cart')
+        .select('*')
+        .eq('cart_id', cartId);
+
+      if (cartError) {
+        throw cartError;
+      }
+
+      const products = [];
+
+      for (const cartItem of cartData) {
+        const { data: productData, error: productError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('prod_id', cartItem.prod_id)
+          .single();
+
+        if (productError) {
+          throw productError;
+        }
+
+        products.push({
+          ...productData,
+          quantity: cartItem.prod_quantity,
+          total_price: cartItem.prod_quantity * productData.prod_price,
+        });
+      }
+
+      setPayProd(products);
+    } catch (error) {
+      console.error('Error fetching payment products:', error.message);
     }
-  }, [selectedPayId]);
+  }
 
+  const handleOpen = (cartId) => {
+    setSelectedPayId(cartId);
+    setOpen(true);
+    fetchPaymentProducts(cartId);
+  };
 
-
-  const [payProd, setPayProd] = useState([])
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedPayId(null);
+    setPayProd([]);
+  };
 
   return (
     <div className='Admin'>
       <SideBar />
-
-
-      <div class="AdminStores-container">
-        <>
-          <div className='Customers-right mt-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-            <h3 >Payments</h3>
-            <table className="table table-hover mt-3 table-bordered ">
-              <thead>
-                <tr className='table-dark'>
-                  <th scope="col">Payment ID</th>
-                  <th scope="col">Customer ID</th>
-                  <th scope="col">Customer Name</th>
-                  <th scope="col">Virtual Cart ID</th>
-                  <th scope="col">Total Payment</th>
-                  <th scope="col">Payment Date</th>
-                  <th scope="col">Payment Time</th>
-                  <th scope="col">Actions</th>
-                  {/* <th scope="col">Date of Birth</th>
-                <th scope="col">Actions</th> */}
+      <div className="AdminStores-container">
+        <div className='Customers-right mt-4' style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+          <h3>Payments</h3>
+          <table className="table table-hover mt-3 table-bordered ">
+            <thead>
+              <tr className='table-dark'>
+                <th scope="col">Payment ID</th>
+                <th scope="col">Customer ID</th>
+                <th scope="col">Virtual Cart ID</th>
+                <th scope="col">Total Payment</th>
+                <th scope="col">Payment Date</th>
+                <th scope="col">Payment Time</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((payment) => (
+                <tr key={payment.payment_id}>
+                  <td>{payment.payment_id}</td>
+                  <td>{payment.user_email}</td>
+                  <td>{payment.cart_id}</td>
+                  <td>{payment.payment_amount}</td>
+                  <td>{new Date(payment.payment_date).toLocaleDateString()}</td>
+                  <td>{new Date(payment.payment_date).toLocaleTimeString()}</td>
+                  <td className='d-flex justify-content-between'>
+                    <button className='btn' onClick={() => handleOpen(payment.cart_id)}><PageviewOutlinedIcon /></button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {/* <tr>
-              <th scope="row">100</th>
-              <td>Raymond Shirt</td>
-              <td>121</td>
-              <td>1230</td>
-              <td>Good!</td>
-              <td>4</td>
-
-
-            </tr> */}
-                {payments.map((payment) => {
-                  const dob = new Date(payment.pay_time);
-                  const formattedDate = dob.toLocaleDateString();
-                  const time = new Date(payment.pay_time)
-                  const formattedTime = time.toLocaleTimeString();
-
-                  return (
-                    <tr key={payment.pay_id}>
-                      <td>{payment.pay_id}</td>
-                      <td>{payment.cid}</td>
-                      <td>{payment.cname}</td>
-                      <td>{payment.vc_id}</td>
-                      <td>{payment.total_pay}</td>
-                      <td>{formattedDate}</td>
-                      <td>{formattedTime}</td>
-                      <td className='d-flex justify-content-between'>
-                        {/* <button className='btn btn-success'>read</button> */}
-                        <button className='btn' onClick={() => handleOpen(payment.pay_id)}><PageviewOutlinedIcon /></button>
-                        <Modal
-                          open={open}
-                          onClose={handleClose}
-                          aria-labelledby="modal-modal-title"
-                          aria-describedby="modal-modal-description"
-                        >
-                          <Box sx={tableModalStyle}>
-                            {
-                              <div style={{ margin: 10, marginLeft: 10, marginRight: 10, justifyContent: 'center' }}>
-                                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                  <h3>Virtual Cart</h3>
-                                </div>
-                                <table className="table table-hover mt-3 table-bordered " >
-                                  <thead>
-                                    <tr className='table-dark'>
-                                      <th scope="col">Product ID</th>
-                                      <th scope="col">Product Name</th>
-                                      <th scope="col">Quantity</th>
-                                      <th scope="col">Price</th>
-                                      {/* <th scope="col">Date of Birth</th>
-                <th scope="col">Actions</th> */}
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {payProd.map((prod) => {
-                                      return (
-                                        <tr key={prod.pid}>
-                                          <td>{prod.pid}</td>
-                                          <td>{prod.pname}</td>
-                                          <td>{prod.quantity}</td>
-                                          <td>{prod.price}</td>
-                                        </tr>
-                                      )
-                                    })}
-
-                                  </tbody>
-                                </table>
-
-                              </div>
-
-
-                            }
-                          </Box>
-                        </Modal>
-                      </td>
+              ))}
+            </tbody>
+          </table>
+          <Modal
+            open={open}
+            onClose={handleClose}
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+          >
+            <Box sx={tableModalStyle}>
+              <div style={{ margin: 10, marginLeft: 10, marginRight: 10, justifyContent: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <h3>Virtual Cart</h3>
+                </div>
+                <table className="table table-hover mt-3 table-bordered">
+                  <thead>
+                    <tr className='table-dark'>
+                      <th scope="col">Product ID</th>
+                      <th scope="col">Product Name</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Total Price</th>
                     </tr>
-                  );
-                })}
-
-
-              </tbody>
-            </table>
-          </div>
-        </>
+                  </thead>
+                  <tbody>
+                    {payProd.map((prod) => (
+                      <tr key={prod.prod_id}>
+                        <td>{prod.prod_id}</td>
+                        <td>{prod.prod_name}</td>
+                        <td>{prod.quantity}</td>
+                        <td>{prod.prod_price}</td>
+                        <td>{prod.total_price}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Box>
+          </Modal>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Customers
-
-
+export default Payments;

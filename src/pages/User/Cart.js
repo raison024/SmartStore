@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './User.css'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Button, Fab, IconButton, Box, Typography, Modal, Snackbar, TextField } from '@mui/material'
+import { Button, Fab, IconButton, Box, Typography, Modal, Snackbar, TextField, hexToRgb } from '@mui/material'
 import { QrCodeScanner, ArrowForward, IndeterminateCheckBox, AddBox, Close, Delete } from '@mui/icons-material/';
 import BackButton from '../../components/BackButton/BackButton';
 import Axios from 'axios';
@@ -40,133 +40,244 @@ function Cart() {
   const [open2, setOpen2] = React.useState(false);
   const handleOpen2 = () => setOpen2(true);
   const handleClose2 = () => {
-    setOpen2(false);
+    setOpen2(false); 
     window.location.reload(false);
   }
 
   const [name, setName] = useState("");
   const [scanStatus, setscanStatus] = useState("Scan a product");
   const [wrong, setwrong] = useState("");
-  const [prodname, setprodname] = useState("Product not found");
+  const [prodname, setprodname] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [maxquantity, setMaxQuantity] = useState(1); // Initialize with a default value of 20
+  const [cartList, setCartList] = useState([]);
+  const [prodList, setProdList] = useState([]);
+  const [totalprice, setTotalPrice] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+
+  useEffect(() => {
+
+    const fetchCartProducts = async () => {
+      try {
+        const { data: cartItems, error } = await supabase
+          .from('cart')
+          .select('prod_id, prod_quantity')
+          .eq('cart_id', state.cartId);
+        if (error) {
+          throw error;
+        }
+
+        const productIds = cartItems.map(item => item.prod_id);
+
+        const { data: products, error: productsError } = await supabase
+          .from('products')
+          .select('prod_id, prod_name, prod_price, prod_img')
+          .in('prod_id', productIds);
+        if (productsError) {
+          throw productsError;
+        }
+
+        const cartProducts = cartItems.map(cartItem => {
+          const product = products.find(p => p.prod_id === cartItem.prod_id);
+          return {
+            ...cartItem,
+            prod_name: product.prod_name,
+            prod_price: product.prod_price,
+            prod_img: product.prod_img
+          };
+        });
+
+        setCartList(cartProducts);
+        const totalItems = cartProducts.reduce((total, item) => total + item.prod_quantity, 0);
+      setTotalItems(totalItems);
+      } catch (error) {
+        console.error('Error fetching cart products:', error.message);
+      }
+    }
+
+    const calculateTotalPrice = () => {
+      let totalPrice = 0;
+      cartList.forEach(item => {
+        totalPrice += item.prod_price * item.prod_quantity;
+      });
+      setTotalPrice(totalPrice);
+    };
+
+    fetchCartProducts();
+    calculateTotalPrice();
+
+    if (name) {
+      check(name);
+    }
+
+  }, [name, maxquantity, state.cartId, state.userEmail, state.userId, cartList]);
+
 
   const check = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('Value of name:', name);
+      const id = parseInt(name);
+      const { data: productData, error } = await supabase
         .from('products')
-        .select('prod_name')
-        .like('prod_id', name); // Case-insensitive search for product name
+        .select('prod_name', 'prod_quantity')
+        .eq('prod_id', id) // Case-insensitive search for product name
+        .single();
 
       if (error) {
         console.error('Error fetching products:', error.message);
         return;
       }
-      setprodname(data.prod_name);
+      setprodname(productData.prod_name);
+      setMaxQuantity(productData.prod_quantity);
     } catch (error) {
       console.error('Error:', error.message);
     }
-    // Axios.post('http://localhost:3002/api/getname', { name: name })
-    //   .then((response) => {
-
-    //     if (response.data.message) {
-    //       setscanStatus(response.data.message)
-    //       console.log("not found bro")
-    //     } else {
-    //       //insert into cart code
-    //       Axios.post('http://localhost:3002/api/insertintocart', { vid: state.cartId, cid: state.userId, pid: name })
-    //       setOpen(false);
-    //       setscanStatus("Scan a product");
-    //       setName("");
-    //       window.location.reload(false);
-    //     }
-
-    //     console.log(response);
-    //   })
   }
 
-  // const check2 = () => {
-  //   Axios.post('http://localhost:3002/api/getname', { name: name })
-  //     .then((response) => {
+  const insert = async () => {
+    const id = parseInt(name);
+    console.log("mx maxquantity:", maxquantity);
+    console.log("mx quantity:", quantity);
+    const updatedQuantity = parseInt(maxquantity) - parseInt(quantity);
+    console.log("mx This is the updated quantity: " + updatedQuantity);
+    try {
+      console.log("Insertion values: " + id + " " + state.userEmail + " " + state.cartId + " " + quantity);
+      const { error } = await supabase
+        .from('cart')
+        .insert({ prod_id: id, user_email: state.userEmail, cart_id: state.cartId, prod_quantity: quantity })
 
-  //       if (response.data.message) {
-  //         setscanStatus(response.data.message)
-  //         console.log("not found bro")
-  //       } else {
-  //         //insert into cart code
-  //         Axios.post('http://localhost:3002/api/insertintocart', { vid: state.cartId, cid: state.userId, pid: name })
-  //         setOpen(false);
-  //         setscanStatus("Scan a product");
-  //         setName("");
-  //         window.location.reload(false);
-  //       }
+      if (error) {
+        console.error('Error fetching products:', error.message);
+        return;
+      }
+      console.log("inserted success");
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+    // const { error } = await supabase
+    //   .from('products')
+    //   .update({ prod_quantity: updatedQuantity })
+    //   .eq('prod_id', id);
+  }
 
-  //       console.log(response);
-  //     })
-  // }
+  const handleAddQuantity = async (prodId, prodQuantity) => {
+    const updatedQuantity = prodQuantity + 1;
+    console.log("PS current quant: "+prodQuantity);
+    console.log("PS updated quant: "+updatedQuantity);
+    setQuantity(updatedQuantity);
+
+    // Update quantity in the cart table
+    try {
+      await supabase
+        .from('cart')
+        .update({ prod_quantity: updatedQuantity })
+        .eq('prod_id', prodId)
+        .eq('cart_id', state.cartId);
+    } catch (error) {
+      console.error('PS Error updating quantity:', error.message);
+    }
+    // window.location.reload(false);
+  };
+
+  const handleSubtractQuantity = async (prodId, prodQuantity) => {
+    const updatedQuantity = prodQuantity - 1;
+    console.log("PS current quant: "+prodQuantity);
+    console.log("PS updated quant: "+updatedQuantity);
+    if (updatedQuantity < 1) return; // Ensure quantity doesn't go below 1
+
+    setQuantity(updatedQuantity);
+  
+    // Update quantity in the cart table
+    try {
+      await supabase
+        .from('cart')
+        .update({ prod_quantity: updatedQuantity })
+        .eq('prod_id', prodId)
+        .eq('cart_id', state.cartId);
+    } catch (error) {
+      console.error('Error updating quantity:', error.message);
+    }
+    // window.location.reload(false);
+  };
+
+
+  const handlepayment = async () => {
+    try {
+      const currentDate = new Date().toISOString();
+      console.log("Insertion values: " + state.cartId + " " + totalprice + " " + 0 + " " + state.userEmail);
+      const { error } = await supabase
+        .from('payments')
+        .insert({ cart_id: state.cartId, payment_date: currentDate, payment_amount: totalprice, payment_status: 0, user_email: state.userEmail })
+
+      if (error) {
+        console.error('Error fetching payment:', error.message);
+        return;
+      }
+      console.log("inserted success");
+      setOpen2(false);
+      alert("Payment completed successfully")
+      alert.onClose(navigate("/home", { state: { userEmail: state.userEmail } }));
+      window.location.reload(false);
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+
+  }
 
   function goback() {
     navigate("/home", { state: { userEmail: state.userEmail } });
   }
 
-  // const handlepayment = () => {
-  //   Axios.post('http://localhost:3002/api/createpayment', { cid: state.userId, total: totalprice, vid: state.cartId })
-  //   setOpen2(false);
-  //   alert("Payment completed successfully")
-  //   alert.onClose(navigate("/home", { state: { userEmail: state.userEmail } }));
-  //   window.location.reload(false);
-  // }
+  const deleteall = async () => {
+    try {
+      const { error } = await supabase
+        .from('cart')
+        .delete()
+        .eq('cart_id', state.cartId);
 
-  // const deleteall = () => {
-  //   Axios.post('http://localhost:3002/api/deleteallcartitems', { vid: state.cartId, cid: state.userId })
-  //   window.location.reload(false);
-  // }
-
-
-  const [prodList, setProdList] = useState([]);
-  const [totalprice, setTotalPrice] = useState("Hey");
-
-  useEffect(() => {
-    // Axios.post("http://localhost:3002/api/getcartitems", { vid: state.cartId, cid: state.userId }).then((data) => {
-    //   setProdList(data.data)
-    // });
-
-    // Axios.post("http://localhost:3002/api/gettotalcartprice", { vid: state.cartId, cid: state.userId }).then((data, vid) => {
-    //   setTotalPrice(parseInt(data))
-    //   console.log("Virtual Cart id:" + vid)
-    //   console.log("Test value:" + (data.data))
-    //   console.log("this is the total:" + totalprice)
-    //   setTotalPrice(data.data[0]["SUM(price)"]);
-    // });
-  }, [])
+      if (error) {
+        console.error('Error deleting cart:', error.message);
+        return;
+      }
+      window.location.reload(false);
+      console.log("deleted success");
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  }
 
   return (
     <div className='User-header User-column' style={{ height: '100vh', justifyContent: 'flex-start' }}>
       <div className='CartScan-container'>
-        <div className='User-row' style={{ padding: 10, alignItems: 'center', background: 'aqua' }}>
+        <div className='User-row' style={{ padding: 10, alignItems: 'center' }}>
           <a onClick={goback} style={{ textDecoration: 'none', margin: 0 }}><h1>&larr;</h1></a>
           <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Your Cart</div>
-          <IconButton aria-label="delete" size="medium">
+          <IconButton aria-label="delete" size="medium" onClick={deleteall}>
             <Delete fontSize="inherit" />
           </IconButton>
         </div>
 
         {/* <p>{state.cartId}</p>
-        <p>{state.userEmail} + {state.userId}</p>  */}
+        <p>{state.userEmail} + {state.userId}</p> */}
 
         <div className='Cart-itemscroll'>
-          {prodList.map((val, key) => {
+          {cartList.map((val, key) => {
 
             return (
               <div className='Cart-itemsContainer'>
-                <img src={val.pimg} height='100%'
-                  style={{ padding: '10px', backgroundColor: '#e9edff', borderRadius: '5px' }}>
+                <img src={val.prod_img} height='100%'
+                  style={{ padding: '4px', backgroundColor: '#e9edff', borderRadius: '5px' }}>
                 </img>
-                <p>{val.pname}</p>
-                {/* <input type='number' style={{display: 'none'}} onChange={() => setTotalPrice(totalprice + 100)}>{val.price}</input> */}
-                <p>{val.price}</p>
+                <p style={{ width: 240}}>{val.prod_name}</p>
+                <p style={{ width: 50}}>Rs. {val.prod_price}</p>
                 <div style={{ height: '40px' }} className='User-row'>
-                  <IconButton aria-label="Remove" color='primary'><IndeterminateCheckBox /> </IconButton>
-                  <p>1</p>
-                  <IconButton aria-label="Add" color='primary'><AddBox /></IconButton>
+                  <IconButton aria-label="Remove" color='primary' onClick={() => handleSubtractQuantity(val.prod_id, val.prod_quantity)}>
+                    <IndeterminateCheckBox />
+                  </IconButton>
+                  <p>{val.prod_quantity}</p>
+                  <IconButton aria-label="Add" color='primary' onClick={() => handleAddQuantity(val.prod_id, val.prod_quantity)}>
+                    <AddBox />
+                  </IconButton>
                 </div>
               </div>
             )
@@ -176,14 +287,14 @@ function Cart() {
         <div className='Cart-bottomsheet'>
           <div className='Cart-spacerow'>
             <div>
-              <p>Total Items</p>
-              <p>Amount to be paid</p>
+              <p>No of Items</p>
+              <p>Total Amount</p>
               {/* <p style={{ fontWeight: 'bold', color: '#1565c0' }}>View Bill</p> */}
             </div>
             <div>
-              <p>{prodList.length}</p>
+              <p>{totalItems}</p>
               {/* <p>299</p> */}
-              <p>{totalprice}</p>
+              <p>Rs. {totalprice}</p>
 
             </div>
           </div>
@@ -204,18 +315,17 @@ function Cart() {
               aria-describedby="modal-modal-description"
             >
               <Box sx={style}>
-                <div style={{ width: '100%', background: 'orange' }}>
+                <div style={{ width: '100%' }}>
                   <QrReader
-                  constraints = {{
-                    facingMode: { exact: "environment" },
-                  }}
+                    // constraints = {{
+                    //   facingMode: { exact: "environment" },
+                    // }}
                     // delayScan={delayScan}
                     onResult={(result, error) => {
-                      if (result) {
+                      if (!!result) {
                         setName(result?.text);
-                        setscanStatus('The product you have scanned is');
+                        setscanStatus('The product you have scanned is: ');
                         setwrong('Wrong Product? Please scan again ;)');
-                        check();
                       }
 
                       if (!!error) {
@@ -225,17 +335,31 @@ function Cart() {
                     style={{ width: '100%' }}
                   />
                   {/* <Scanner
-                    onResult={(text, result) => console.log(text, result)}
+                    onResult={(result) => {
+                      setName(result);
+                        console.log("Value after scan "+name);
+                        setscanStatus('The product you have scanned is');
+                        setwrong('Wrong Product? Please scan again ;)');
+                        check();
+                    }}
                     onError={(error) => console.log(error?.message)}
                   /> */}
                   {/* <QrReader2
                   /> */}
                 </div>
                 <div className='User-column'>
-                  <p>{scanStatus}<br />{name}</p>
-                  <p>{prodname} is this the product?</p>
+                  <p>{scanStatus} {prodname}</p>
+                  <TextField id="quantity" label="Set Quantity" variant="standard"
+                    sx={{ m: 2 }} defaultValue="1" type='number'
+                    value={quantity}
+                    InputProps={{
+                      inputProps: {
+                        max: maxquantity, min: 1
+                      }
+                    }}
+                    onChange={(e) => setQuantity(parseInt(e.target.value))} />
                   <input type="text" value={name} placeholder="Name" name='name' style={{ display: 'none' }}></input>
-                  <Button onClick={check} variant="contained"
+                  <Button onClick={insert} variant="contained"
                     style={{
                       backgroundColor: '#fff', color: '#1565c0',
                       textTransform: 'none', borderRadius: '50px'
@@ -274,13 +398,13 @@ function Cart() {
                     variant="outlined" fullWidth margin='normal' size='small'
                     type='email'
                   />
-                  <p><br />Total Items taken: {prodList.length}</p>
+                  <p><br />Total Items taken: {cartList.length}</p>
                   <p>Total amount: Rs.{totalprice}</p>
 
                   <input type="text" value={totalprice} placeholder="Name" name='total' style={{ display: 'none' }}></input>
 
                   <Button variant='contained'
-                    // onClick={handlepayment}
+                    onClick={handlepayment}
                     style={{
                       width: '100%', textTransform: 'none',
                       height: '50px', borderRadius: '50px'

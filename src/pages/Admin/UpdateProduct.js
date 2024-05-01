@@ -1,124 +1,108 @@
-import React, { useState, useEffect } from 'react'
-import SideBar from '../../components/Admin SideBar/SideBar'
-import './Stores'
-import { useParams,useNavigate } from 'react-router-dom'
-import Axios from 'axios'
-
+import React, { useState, useEffect } from 'react';
+import SideBar from '../../components/Admin SideBar/SideBar';
+import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../../supabase'; // Import your Supabase client
 
 function UpdateProduct() {
-
   const navigate = useNavigate();
   const { pid } = useParams();
-  const [product, setProduct] = useState({ pname: 'hello', cat_name: 'jkbbnk', price: 0, STOCKS: 10, pimg: 'jnjnkj', pdesc: '' })
+  const [product, setProduct] = useState({ prod_name: 'hello', prod_category: 'jkbbnk', prod_price: 0, prod_quantity: 10, prod_img: 'jnjnkj', prod_desc: '' });
 
-  const [categories, setCategories] = useState([]);
-
-
-  //Getting the existing details from the backend
+  // Getting the existing details from the backend
   useEffect(() => {
-    Axios.get(`http://localhost:3003/api/read_update_product/${pid}`)
-      .then(res => {
-        // console.log("Stocks from database : " + res.data)
-        setProduct(res.data)
-        console.log(product)
-        Axios.get('http://localhost:3003/api/read_cat_name')
-          .then(response => {
-            // console.log(response)
-            setCategories(response.data);
-            console.log(categories)
-          })
-          .catch(error => {
-            console.error(error);
-          });
-      })
-      .catch(err => console.log(err))
-  }, [])
+    const fetchProduct = async () => {
+      try {
+        // Fetch product details
+        const { data: productData, error: productError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('prod_id', pid)
+          .single();
+        if (productError) {
+          throw productError;
+        }
+        setProduct(productData);
+      } catch (error) {
+        console.error('Error fetching product details:', error.message);
+      }
+    };
+    fetchProduct();
+  }, [pid]);
 
-
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setProduct(prevProduct => ({ ...prevProduct, [name]: value }));
+    setProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
   };
 
-  const handleSubmit = e => {
-    e.preventDefault();
-    console.log("Product Update : " + product.stocks)
-    Axios.post(`http://localhost:3003/api/submit_update_product/${pid}`, product)
-      .then(res => {console.log(res)
-        navigate("/admin_products");
-      })
-      .catch(err => console.log(err));
+  const handleUpdate = async () => {
+    try {
+      // Update product details
+      const { error: updateError } = await supabase
+        .from('products')
+        .update({
+          prod_name: product.prod_name,
+          prod_category: product.prod_category,
+          prod_price: product.prod_price,
+          prod_quantity: product.prod_quantity,
+          prod_img: product.prod_img,
+          prod_desc: product.prod_desc
+        })
+        .eq('prod_id', pid);
+        navigate('/admin_products');
+      if (updateError) {
+        throw updateError;
+      }
+      
+    } catch (error) {
+      console.error('Error updating product:', error.message);
+    }
   };
 
   return (
-    <div className='Admin'>
+    <div className="Admin">
       <SideBar />
-      <div class="AdminStores-container">
-        <div className='container'>
-          {/* <NavLink to='/admin_products'>Hey</NavLink> */}
-          <form onSubmit={handleSubmit} className='prodForm'>
+      <div className="AdminStores-container">
+        <div className="container">
+          <form onSubmit={handleUpdate} className="prodForm">
             <div className="row">
-              <div class="mb-3 col-lg-6 col-md-6 col-12">
+              <div className="mb-3 col-lg-6 col-md-6 col-12">
                 <label htmlFor="name">Product Name</label>
-                <input type="text" class="form-control" placeholder="Enter product name" name='pname' value={product.pname} onChange={handleChange} />
-
-                {/* <small class="form-text text-muted">We'll never share your email with anyone else.</small> */}
+                <input type="text" className="form-control" placeholder="Enter product name" name="prod_name" value={product.prod_name} onChange={handleChange} />
               </div>
 
-              {/* Input Image
-            <div className='inputImage'>
-              <input type="file" multiple accept='image/*' onChange={onImageChange}/>
-            </div> */}
-
-              {/* <div class="mb-3 col-lg-6 col-md-6 col-12">
-                <label htmlFor="name">Category</label>
-                <input type="text" class="form-control" placeholder="Enter the category of the product" name='cat_name' value={product.cat_name} onChange={handleChange} />
-              </div> */}
-              <div class="mb-4 col-lg-6 col-md-6 col-12">
-
-              <label htmlFor="">Category</label>&nbsp;
-              <select id="category-select" name='cat_name' value={product.cat_name} onChange={handleChange} required>
-                {categories.map(category => {
-                    return (
-                      <option key={category.cat_name} value={category.cat_name}>
-                        {category.cat_name}
-                      </option>
-                    )
-                  
-                })}
-              </select>
-
+              <div className="mb-4 col-lg-6 col-md-6 col-12">
+                <label htmlFor="">Category</label>&nbsp;
+                <input type="text" className="form-control" placeholder="Enter category name" name="prod_category" value={product.prod_category} onChange={handleChange} />
               </div>
 
-              <div class="mb-3 col-lg-6 col-md-6 col-12">
+              <div className="mb-3 col-lg-6 col-md-6 col-12">
                 <label htmlFor="name">Price</label>
-                <input type="number" class="form-control" placeholder="Enter the price of the product" name='price' value={product.price} onChange={handleChange} />
+                <input type="number" className="form-control" placeholder="Enter the price of the product" name="prod_price" value={product.prod_price} onChange={handleChange} />
               </div>
-              <div class="mb-3 col-lg-6 col-md-6 col-12">
+              <div className="mb-3 col-lg-6 col-md-6 col-12">
                 <label htmlFor="name">Stocks</label>
-                <input type="number" class="form-control" placeholder="Enter the stocks of the product" name='STOCKS' value={product.STOCKS} onChange={handleChange} />
+                <input type="number" className="form-control" placeholder="Enter the stocks of the product" name="prod_quantity" value={product.prod_quantity} onChange={handleChange} />
               </div>
-              <div class="mb-3 col-lg-6 col-md-6 col-12">
+              <div className="mb-3 col-lg-6 col-md-6 col-12">
                 <label htmlFor="name ">Product Image Link</label>
-                <input type="text" class="form-control" placeholder="Enter the image link" name='pimg' value={product.pimg} onChange={handleChange} />
+                <input type="text" className="form-control" placeholder="Enter the image link" name="prod_img" value={product.prod_img} onChange={handleChange} />
               </div>
-              <div className='mb-3 col-lg-12 col-md-12 col-12'>
+              <div className="mb-3 col-lg-12 col-md-12 col-12">
                 <label> Product Description </label>
                 <br />
-                <textarea name="pdesc" id="" cols="70" rows="5" value={product.pdesc} onChange={handleChange}></textarea>
+                <textarea name="prod_desc" cols="70" rows="5" value={product.prod_desc} onChange={handleChange}></textarea>
               </div>
-              <div className='mb-3 col-lg-6 col-md-12 col-12'>
-                <button type="submit" class="btn btn-primary mt-4" onClick={handleSubmit}>Submit</button>
+              <div className="mb-3 col-lg-6 col-md-12 col-12">
+                <button type="submit" className="btn btn-primary mt-4">
+                  Submit
+                </button>
               </div>
             </div>
           </form>
-          {/* <p>{product}</p> */}
         </div>
-        {/* <h1>{submitStatus}</h1> */}
       </div>
     </div>
-
-  )
+  );
 }
 
-export default UpdateProduct
+export default UpdateProduct;

@@ -20,10 +20,6 @@ export const SideBarData=[
         title : "Stores",
         icon : <StoreIcon />,
         link : "/admin_stores"
-    },{
-        title : "Categories",
-        icon : <CategoryIcon />,
-        link : "/admin_category"
     },
     {
         title : "Products",
