@@ -101,7 +101,7 @@ function Payments() {
               <tr className='table-dark'>
                 <th scope="col">Payment ID</th>
                 <th scope="col">Customer ID</th>
-                <th scope="col">Virtual Cart ID</th>
+                <th scope="col">Cart ID</th>
                 <th scope="col">Total Payment</th>
                 <th scope="col">Payment Date</th>
                 <th scope="col">Payment Time</th>
@@ -133,7 +133,7 @@ function Payments() {
             <Box sx={tableModalStyle}>
               <div style={{ margin: 10, marginLeft: 10, marginRight: 10, justifyContent: 'center' }}>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <h3>Virtual Cart</h3>
+                  <h3>Cart</h3>
                 </div>
                 <table className="table table-hover mt-3 table-bordered">
                   <thead>
