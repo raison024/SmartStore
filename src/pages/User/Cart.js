@@ -218,6 +218,7 @@ function Cart() {
                         setscanStatus('The product you have scanned is');
                         setwrong('Wrong Product? Please scan again ;)');
                         <p>{prodname} is this the product?</p>
+
                         // check();
                       }
 
@@ -236,6 +237,7 @@ function Cart() {
                 </div>
                 <div className='User-column'>
                   <p>{scanStatus}<br />{name}</p>
+                  <p>{prodname} is this the product?</p>
                   <input type="text" value={name} placeholder="Name" name='name' style={{ display: 'none' }}></input>
                   <Button onClick={check} variant="contained"
                     style={{
