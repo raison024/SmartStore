@@ -317,9 +317,9 @@ function Cart() {
               <Box sx={style}>
                 <div style={{ width: '100%' }}>
                   <QrReader
-                    // constraints = {{
-                    //   facingMode: { exact: "environment" },
-                    // }}
+                    constraints = {{
+                      facingMode: { exact: "environment" },
+                    }}
                     // delayScan={delayScan}
                     onResult={(result, error) => {
                       if (!!result) {
