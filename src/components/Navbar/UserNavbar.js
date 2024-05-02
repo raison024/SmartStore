@@ -74,8 +74,8 @@ function UserNavbar() {
 
         {/* <h6 style={{ margin: 0 }}>Welcome, {name}</h6> */}
         <Avatar src={user_pfp} style={{margin: '10px'}} />
-        <Link to="/">
-          Log
+        <Link to="/" style={{textDecoration: 'none'}}>
+          Logout
         </Link>
       </div>
 

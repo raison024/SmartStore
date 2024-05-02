@@ -74,7 +74,7 @@ function History() {
     return (
         <div className='Auth-header User-column'>
             <a className='Auth-goback' onClick={goback}>&larr; &nbsp;Go back</a>
-            <div style={{ width: '30%', padding: '20px', background: '#d0d0d0' }}>
+            <div style={{ width: '90%', padding: '20px', background: '#d0d0d0' }}>
                 <h4>Payment History</h4>
 
                 {payList.map(payment => (
