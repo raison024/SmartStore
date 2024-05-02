@@ -93,7 +93,7 @@ function UserHome() {
       <div className='User-paddingcontainer'>
         <img src={Poster} width='100%' className='User-poster' alt="poster"></img>
         <p style={{ display: 'none' }}>{num}</p>
-        <h4 style={{ margin: '0' }}><br />All Products</h4>
+        <h5 style={{ margin: '0' }}><br />All Products</h5>
         <br />
         <div className='User-grid'>
 
