@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './User.css';
 import UserNavbar from '../../components/Navbar/UserNavbar';
-import Poster from '../../assets/poster.png';
+import Poster from '../../assets/poster2.png';
 import AddCartIcon from '@mui/icons-material/AddShoppingCart';
 import { supabase } from '../../supabase';
 import { styled } from '@mui/material/styles';
